@@ -56,7 +56,7 @@ LATTICE is a research-engineering project aimed at understanding and building mo
 ## 🧱 Project Structure
 
 ```bash
-llm-architect-lab/
+LATTICE/
 ├── config/                # Experiment configs (Hydra-based)
 ├── data/                  # Raw and preprocessed datasets
 ├── models/                # Transformer, Attention variants, MoE, RLHF modules
@@ -66,32 +66,28 @@ llm-architect-lab/
 ├── notebooks/             # Exploratory and debug notebooks
 ├── scripts/               # Data downloads, training orchestration
 ├── experiments/           # Logs, checkpoints, metadata
-├── reports/               # Stage-wise evaluation results
+├── reports/               # Stage-wise evaluation results and model visualizations
+│   └── visualizations_*/  # Timestamped model architecture diagrams and analysis
 └── README.md
 ```
 
----
+### 📊 Reports Directory
 
-## 📦 Installation
+The `reports/` directory contains automatically generated visualizations and analysis for trained models:
 
-```bash
-git clone https://github.com/yourname/llm-architect-lab.git
-cd llm-architect-lab
-pip install -r requirements.txt
+- **Model Architecture Diagrams** - Visual representation of Transformer layers
+- **Attention Heatmaps** - Head-wise attention pattern visualizations  
+- **Parameter Breakdown** - Component-wise parameter distribution charts
+- **Model Summaries** - Detailed configuration and statistics
+- **Performance Metrics** - Training/validation curves and evaluation results
+
+Each visualization session creates a timestamped subdirectory (`visualizations_YYYYMMDD_HHMMSS/`) containing:
 ```
-
----
-
-## 🧠 Author & Intent
-
-This project is built by **Ali**, an AI engineer focused on scalable and interpretable LLM architectures. The project serves as both a personal R&D playground and a public-facing showcase of applied LLM systems design.
-
----
-
-## 🤝 Collaboration & License
-
-- License: MIT
-- Contributions: Pull requests, suggestions, and dataset integrations are welcome
-- Looking to collaborate on: Turkish NLP, LLM benchmarking, MoE experimentation
-
----
+reports/visualizations_20250623_143022/
+├── README.md                      # Generated report summary
+├── transformer_architecture.png   # Architecture diagram
+├── encoder_attention_heatmap.png  # Encoder attention patterns
+├── decoder_attention_heatmap.png  # Decoder attention patterns
+├── parameter_breakdown.png        # Parameter distribution
+└── model_summary.png             # Configuration overview
+```
