@@ -5,6 +5,115 @@ import os
 from datetime import datetime
 
 
+def create_model_history_visualizations(model, history, config, save_dir=None):
+
+    if save_dir is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_dir = f"reports/visualizations_{timestamp}"
+
+    os.makedirs(save_dir, exist_ok=True)
+
+    plt.figure(figsize=(15, 5))
+
+    plt.subplot(1, 3, 1)
+    plt.plot(history["epochs"], history["train_loss"], label="Train Loss", marker="o")
+    plt.plot(
+        history["epochs"], history["val_loss"], label="Validation Loss", marker="s"
+    )
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training and Validation Loss")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+
+    plt.subplot(1, 3, 2)
+    if "train_perplexity" in history:
+        plt.plot(
+            history["epochs"],
+            history["train_perplexity"],
+            label="Train Perplexity",
+            marker="o",
+        )
+        plt.plot(
+            history["epochs"],
+            history["val_perplexity"],
+            label="Val Perplexity",
+            marker="s",
+        )
+        plt.xlabel("Epoch")
+        plt.ylabel("Perplexity")
+        plt.title("Training and Validation Perplexity")
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+
+    plt.subplot(1, 3, 3)
+    param_counts = {}
+    for name, param in model.named_parameters():
+        module_name = name.split(".")[0]
+        if module_name not in param_counts:
+            param_counts[module_name] = 0
+        param_counts[module_name] += param.numel()
+
+    plt.pie(param_counts.values(), labels=param_counts.keys(), autopct="%1.1f%%")
+    plt.title("Parameter Distribution")
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(save_dir, "training_summary.png"), dpi=300, bbox_inches="tight"
+    )
+    plt.close()
+
+    create_model_summary(model, config, save_dir)
+
+    print(f"Visualizations saved to: {save_dir}")
+    return save_dir
+
+
+def create_model_summary(model, config, save_dir):
+
+    _, ax = plt.subplots(figsize=(12, 8))
+    ax.axis("off")
+
+    model_info = f"""
+    TRANSFORMER MODEL SUMMARY
+    
+    Architecture Configuration:
+    • Encoder Layers: {config.get("encoder_layers", "N/A")}
+    • Decoder Layers: {config.get("decoder_layers", "N/A")}
+    • Model Dimension: {config.get("d_model", "N/A")}
+    • Feed Forward Dimension: {config.get("d_ff", "N/A")}
+    • Attention Heads: {config.get("encoder_heads", "N/A")}
+    • Dropout Rate: {config.get("dropout", "N/A")}
+    • Max Sequence Length: {config.get("max_len", "N/A")}
+    
+    Training Configuration:
+    • Learning Rate: {config.get("learning_rate", "N/A")}
+    • Batch Size: {config.get("batch_size", "N/A")}
+    • Epochs: {config.get("epochs", "N/A")}
+    • Optimizer: AdamW
+    • Mixed Precision: {config.get("mixed_precision", False)}
+    
+    Model Statistics:
+    • Total Parameters: {sum(p.numel() for p in model.parameters()):,}
+    • Trainable Parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}
+    """
+
+    ax.text(
+        0.1,
+        0.5,
+        model_info,
+        fontsize=12,
+        fontfamily="monospace",
+        verticalalignment="center",
+        transform=ax.transAxes,
+    )
+
+    plt.savefig(
+        os.path.join(save_dir, "model_summary.png"), dpi=300, bbox_inches="tight"
+    )
+    plt.close()
+
+
 def create_output_directory():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_dir = f"reports/visualizations_{timestamp}"
@@ -18,7 +127,7 @@ def create_transformer_architecture_diagram(model, model_info, output_dir="repor
     input_size = model_info["input_size"]
 
     total_layers = max(num_encoder_layers, num_decoder_layers)
-    y_slots = 2 + total_layers + 1 
+    y_slots = 2 + total_layers + 1
     fig, ax = plt.subplots(1, 1, figsize=(14, 4 + total_layers * 1.5))
 
     colors = {
@@ -169,7 +278,9 @@ def create_attention_heatmaps(model_info, output_dir="reports"):
     def _plot_heatmap(num_heads, seq_len, title, save_path):
         cols = 4
         rows = (num_heads + cols - 1) // cols
-        fig, axes = plt.subplots(rows, cols, figsize=(cols * 4, rows * 4), squeeze=False)
+        fig, axes = plt.subplots(
+            rows, cols, figsize=(cols * 4, rows * 4), squeeze=False
+        )
         fig.suptitle(title, fontsize=16, weight="bold")
 
         attention_weights = np.random.rand(num_heads, seq_len, seq_len)
@@ -192,13 +303,17 @@ def create_attention_heatmaps(model_info, output_dir="reports"):
         plt.close()
 
     e_num_heads = model_info["e_num_heads"]
-    encoder_title = f"Encoder Self-Attention ({e_num_heads} Heads, Seq Len: {src_seq_len})"
+    encoder_title = (
+        f"Encoder Self-Attention ({e_num_heads} Heads, Seq Len: {src_seq_len})"
+    )
     encoder_save_path = os.path.join(output_dir, "encoder_attention_heatmap.png")
     _plot_heatmap(e_num_heads, src_seq_len, encoder_title, encoder_save_path)
     paths["encoder_attention"] = encoder_save_path
 
     d_num_heads = model_info["d_num_heads"]
-    decoder_title = f"Decoder Masked Self-Attention ({d_num_heads} Heads, Seq Len: {tgt_seq_len})"
+    decoder_title = (
+        f"Decoder Masked Self-Attention ({d_num_heads} Heads, Seq Len: {tgt_seq_len})"
+    )
     decoder_save_path = os.path.join(output_dir, "decoder_attention_heatmap.png")
     _plot_heatmap(d_num_heads, tgt_seq_len, decoder_title, decoder_save_path)
     paths["decoder_attention"] = decoder_save_path
@@ -353,7 +468,7 @@ def create_readme(output_dir, model_info):
     return readme_path
 
 
-def main(model, input_size=None):
+def get_model_infos(model, input_size=None):
     output_dir = create_output_directory()
 
     try:
@@ -388,7 +503,7 @@ def main(model, input_size=None):
     paths["architecture"] = create_transformer_architecture_diagram(
         model, model_info, output_dir
     )
-    
+
     attention_paths = create_attention_heatmaps(model_info, output_dir)
     paths.update(attention_paths)
 

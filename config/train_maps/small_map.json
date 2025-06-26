@@ -1,0 +1,14 @@
+{
+    "encoder_layers": 2,
+    "decoder_layers": 2,
+    "d_model": 128,
+    "d_ff": 512,
+    "encoder_heads": 4,
+    "decoder_heads": 4,
+    "max_len": 32,
+    "epochs": 3,
+    "max_samples": 20000,
+    "min_freq": 2,
+    "model_name": "transformer_small_translation_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+    "batch_size": 16
+}
