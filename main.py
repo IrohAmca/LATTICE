@@ -5,7 +5,7 @@ import argparse
 
 from data.data_loader import create_data_loaders
 from models.transformer.base import Transformer
-from train.trainer import TranslationTrainer
+from train.trainer import Trainer
 from utils.visualization.torch_viz import create_model_history_visualizations
 
 logging.basicConfig(level=logging.INFO)
@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 def create_translation_model(src_vocab_size, tgt_vocab_size, config):
-    """Create a transformer model for translation"""
     model = Transformer(
         src_vocab=src_vocab_size,
         tgt_vocab=tgt_vocab_size,
@@ -27,7 +26,6 @@ def create_translation_model(src_vocab_size, tgt_vocab_size, config):
         max_len=config.get("max_len", 100),
     )
 
-    # Store model parameters for saving
     model.model_params = {
         "src_vocab_size": src_vocab_size,
         "tgt_vocab_size": tgt_vocab_size,
@@ -52,12 +50,10 @@ def create_translation_model(src_vocab_size, tgt_vocab_size, config):
 
 
 def prepare_translation_batch(batch, device):
-    """Prepare batch for translation training"""
     src, tgt = batch
 
-    # Create input and target sequences
-    tgt_input = tgt[:, :-1]  # All tokens except last
-    tgt_output = tgt[:, 1:]  # All tokens except first
+    tgt_input = tgt[:, :-1]
+    tgt_output = tgt[:, 1:]
 
     return {
         "input_ids": src.to(device),
@@ -106,7 +102,7 @@ def main(model_size, default_path="config/train_maps", base_config="base_map.jso
     logger.info(f"Total parameters: {total_params:,}")
     logger.info(f"Trainable parameters: {trainable_params:,}")
 
-    trainer = TranslationTrainer(
+    trainer = Trainer(
         model=model, config=config, metrics_config=metrics_config, device=device
     )
 
@@ -127,10 +123,9 @@ def main(model_size, default_path="config/train_maps", base_config="base_map.jso
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Train a Transformer model for translation."
-    )   
+    )
     parser.add_argument(
         "--model_size",
         type=str,

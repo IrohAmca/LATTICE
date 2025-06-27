@@ -10,6 +10,15 @@
     "max_samples": 100000,
     "min_freq": 3,
     "model_name": "transformer_medium_translation_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-    "batch_size": 32
+    "batch_size": 32,
+    "learning_rate": 3e-4,
+    "weight_decay": 0.1,
+    "label_smoothing": 0.1,
+    "warmup_ratio": 0.06,
+    "max_grad_norm": 0.5,
+    "gradient_accumulation_steps": 4,
+    "use_curriculum_learning": true,
+    "mixed_precision": true,
+    "dropout": 0.15
 
 }

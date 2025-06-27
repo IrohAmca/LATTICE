@@ -2,7 +2,7 @@
     "encoder_layers": 8,
     "decoder_layers": 8,
     "d_model": 512,
-    "d_ff": 1024,
+    "d_ff": 2048,
     "encoder_heads": 16,
     "decoder_heads": 16,
     "max_len": 128,
@@ -10,5 +10,14 @@
     "max_samples": 200000,
     "min_freq": 2,
     "model_name": "transformer_small_translation_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-    "batch_size": 16
+    "batch_size": 16,
+    "learning_rate": 3e-4,
+    "weight_decay": 0.1,
+    "label_smoothing": 0.1,
+    "warmup_ratio": 0.06,
+    "max_grad_norm": 0.5,
+    "gradient_accumulation_steps": 4,
+    "use_curriculum_learning": true,
+    "mixed_precision": true,
+    "dropout": 0.15
 }

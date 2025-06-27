@@ -1,15 +1,7 @@
 {
-    "learning_rate": 3e-4,
-    "weight_decay": 0.1,
-    "warmup_ratio": 0.06,
-    "max_grad_norm": 0.5,
-    "gradient_accumulation_steps": 4,
-    "mixed_precision": true,
     "early_stopping": {"enabled": true, "patience": 7, "min_delta": 0.005},
-    "use_curriculum_learning": true,
     "save_dir": "models/saved",
     "save_strategy": "epoch",
     "save_total_limit": 5,
-    "dataset_name": "multi30k",
-    "dropout": 0.15
+    "dataset_name": "multi30k"
 }

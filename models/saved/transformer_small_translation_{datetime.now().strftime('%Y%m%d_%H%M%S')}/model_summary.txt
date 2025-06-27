@@ -1,0 +1,21 @@
+===== TRANSLATION MODEL SUMMARY =====
+                        Model name: transformer_small_translation_{datetime.now().strftime('%Y%m%d_%H%M%S')}
+                        Timestamp: 2025-06-27 17:59:09
+
+                        Performance Metrics:
+                        - Best validation loss: 3.3435 (epoch 3)
+                        - Final validation perplexity: 28.32
+                        - Token accuracy: 28.3%
+                        - BLEU score: 3.75
+
+                        Model Architecture:
+                        - Parameters: 938,785
+                        - Encoder layers: 2
+                        - Decoder layers: 2
+                        - Model dimension: 128
+
+                        Translation Quality Assessment:
+                        - Perplexity <15: ✗ (Good baseline)
+                        - Token accuracy >60%: ✗
+                        - BLEU >15: ✗
+                        
