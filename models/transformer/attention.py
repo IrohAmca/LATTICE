@@ -1,5 +1,4 @@
 import torch
-import math
 from torch import nn, Tensor
 from torch.nn import functional as F
 
@@ -7,8 +6,8 @@ from .utils import clones
 
 def attention(query, key, value, mask=None, dropout=None):
     d_k = query.size(-1)
-    scores = torch.matmul(query, key.transpose(-2, -1)) \
-             / math.sqrt(d_k)
+    scale_factor = torch.tensor(d_k, device=query.device, dtype=query.dtype).sqrt()
+    scores = torch.matmul(query, key.transpose(-2, -1)) / scale_factor
     if mask is not None:
         scores = scores.masked_fill(mask == 0, -1e9)
     p_attn = F.softmax(scores, dim = -1)

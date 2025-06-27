@@ -27,7 +27,6 @@ class Trainer:
             "train_acc": [],
             "val_loss": [],
             "val_acc": [],
-            "f1": [],
             "precision": [],
             "recall": [],
         }
@@ -101,7 +100,6 @@ class Trainer:
                 "perplexity": val_perplexity,
                 "token_accuracy": getattr(self, "last_token_accuracy", 0.0),
                 "bleu_score": getattr(self, "last_bleu_score", 0.0),
-                "f1": 0.0,
                 "precision": 0.0,
                 "recall": 0.0,
             }
@@ -240,7 +238,7 @@ class Trainer:
         else:
             return max_len
 
-    def train_epoch(self, train_loader, optimizer, criterion, scaler):
+    def train_epoch(self, train_loader, optimizer, criterion, scaler, scheduler):
         self.model.train()
         total_loss = 0
         total_tokens = 0
@@ -289,6 +287,7 @@ class Trainer:
                     )
                     scaler.step(optimizer)
                     scaler.update()
+                    scheduler.step()
 
                 total_loss += loss.item() * accumulation_steps
                 total_tokens += (tgt_output != 0).sum().item()
@@ -531,7 +530,6 @@ class Trainer:
             "perplexity": perplexity,
             "token_accuracy": token_accuracy,
             "bleu_score": bleu_score,
-            "f1": 0.0,
             "precision": 0.0,
             "recall": 0.0,
         }
@@ -580,14 +578,12 @@ class Trainer:
 
             if use_mixed_precision:
                 train_loss, train_perplexity = self._train_epoch_mixed_precision(
-                    train_loader, optimizer, criterion, scaler
+                    train_loader, optimizer, criterion, scaler, scheduler
                 )
             else:
                 train_loss, train_perplexity = self.train_epoch(
-                    train_loader, optimizer, criterion, scaler
+                    train_loader, optimizer, criterion, scaler, scheduler
                 )
-
-            scheduler.step()
 
             metrics = self.evaluate(val_loader, criterion=criterion)
 
@@ -601,7 +597,6 @@ class Trainer:
             self.training_history["train_acc"].append(token_accuracy)
             self.training_history["val_loss"].append(val_loss)
             self.training_history["val_acc"].append(val_perplexity)
-            self.training_history["f1"].append(0.0)
             self.training_history["precision"].append(0.0)
             self.training_history["recall"].append(0.0)
 
@@ -667,7 +662,7 @@ class Trainer:
 
         return src[mask], tgt[mask]
 
-    def _train_epoch_mixed_precision(self, train_loader, optimizer, criterion, scaler):
+    def _train_epoch_mixed_precision(self, train_loader, optimizer, criterion, scaler, scheduler):
         self.model.train()
         total_loss = 0
         total_tokens = 0
@@ -706,6 +701,7 @@ class Trainer:
                 )
                 scaler.step(optimizer)
                 scaler.update()
+                scheduler.step()
 
             total_loss += loss.item() * accumulation_steps
             total_tokens += (tgt_output_flat != 0).sum().item()
